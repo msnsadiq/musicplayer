@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:musicplayer/apii.dart';
 
 class ScreenHome extends StatefulWidget {
   const ScreenHome({Key? key}) : super(key: key);
@@ -6,9 +9,21 @@ class ScreenHome extends StatefulWidget {
   @override
   State<ScreenHome> createState() => _ScreenHomeState();
 }
+late dynamic result;
 TextEditingController _textControl = TextEditingController();
+StreamController _controller = StreamController();
+
+
 
 class _ScreenHomeState extends State<ScreenHome> {
+  loadPost({required number}){
+
+
+   btnWork(item: number) .then((value){
+    _controller.add(value);
+    return value;
+    });
+  }
   Icon CustomIcon = Icon(Icons.search);
   Widget CustomTitle = Text( "numberAPI");
   @override
@@ -26,15 +41,20 @@ class _ScreenHomeState extends State<ScreenHome> {
                   if (CustomIcon.icon == Icons.search) {
                     if (CustomIcon.icon == Icons.search) {
                       CustomIcon = const Icon(Icons.cancel);
-                      CustomTitle = const ListTile(
+                      CustomTitle =  ListTile(
                         leading: Icon(
                           Icons.search,
                           color: Colors.white,
                           size: 28,
                         ),
                         title: TextField(
+                         onSubmitted: (value){
+                           setState(() {
+                             loadPost(number: value);
+                           });
+                         },
                           decoration: InputDecoration(
-                            hintText: 'type in journal name...',
+                            hintText: 'enter a number...',
                             hintStyle: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -57,6 +77,23 @@ class _ScreenHomeState extends State<ScreenHome> {
               icon: CustomIcon)
         ],
       ),
+     body: StreamBuilder(
+         stream: _controller.stream,
+         builder: (ctx,AsyncSnapshot snapshot){
+       if(snapshot.hasData){
+         return Center(
+        child: Text(result.number.toString()),
+         );
+       }
+       if(snapshot.connectionState != ConnectionState.done){
+         return CircularProgressIndicator();
+       }
+       return Container();
+     }),
     );
+  }
+  btnWork({required dynamic item})async{
+ result = await  apiGet(numberr: item);
+ return result;
   }
 }
